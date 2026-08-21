@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Матч-Центр / Приватный доступ</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0d1117;
+            color: #f0f6fc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #access-denied {
+            text-align: center;
+        }
+        #access-denied h1 { font-size: 72px; margin: 0; color: #21262d; }
+        #access-denied p { color: #8b949e; font-size: 18px; }
+
+        #stream-container {
+            display: none;
+            width: 95%;
+            max-width: 1400px;
+            margin: 20px auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #58a6ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .badge {
+            background-color: #238636;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: 3.2fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 1000px) {
+            .main-content { grid-template-columns: 1fr; }
+        }
+        .player-wrapper {
+            background: #161b22;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+            position: relative;
+            padding-top: 56.25%; /* Формат 16:9 */
+        }
+        .player-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .panel {
+            background: #161b22;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #30363d;
+        }
+        .panel h3 { margin-top: 0; color: #58a6ff; font-size: 16px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
+        
+        /* Кнопка Доната */
+        .donate-btn {
+            display: block;
+            background: linear-gradient(135deg, #1f883d, #2ea44f);
+            color: #ffffff;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: background 0.2s;
+            box-shadow: 0 3px 10px rgba(46, 164, 79, 0.2);
+        }
+        .donate-btn:hover { background: #2c974b; }
+
+        /* Панель управления потоками (только для тебя) */
+        .control-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .control-inputs input {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 8px;
+            color: white;
+            border-radius: 4px;
+        }
+        .control-inputs button {
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid #30363d;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .control-inputs button:hover { background: #30363d; }
