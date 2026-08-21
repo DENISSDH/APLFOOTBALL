@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прямая Трансляция | АПЛ LIVE</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #0b0f19; color: #ffffff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        .container { width: 95%; max-width: 1000px; margin-top: 20px; }
+        .player { position: relative; padding-top: 56.25%; background: #000; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .donate-block { margin-top: 20px; text-align: center; background: #111827; padding: 20px; border-radius: 12px; border: 1px solid #1e293b; }
+        .btn { display: inline-block; background: linear-gradient(90deg, #22c55e, #16a34a); color: #fff; text-align: center; padding: 15px 40px; border-radius: 8px; font-size: 18px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); transition: transform 0.2s; }
+        .btn:hover { transform: translateY(-2px); }
+        h1 { font-size: 22px; color: #3b82f6; text-align: center; margin-bottom: 5px; }
+        p { color: #94a3b8; font-size: 14px; margin-top: 0; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>⚽ АНГЛИЙСКАЯ ПРЕМЬЕР-ЛИГА | LIVE</h1>
+        <p style="text-align: center;">Трансляция в HD. Без рекламы букмекеров и лагов.</p>
+        
+        <div class="player">
+            <!-- Сюда автоматически подгрузится матч, который ты включил в админке -->
+            <iframe id="user-player" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+        </div>
+
+        <div class="donate-block">
+            <h3 style="margin-top:0; font-size: 18px;">Понравилась трансляция? Поддержи стримера!</h3>
+            <p>Все донаты идут на поддержку сервера и чистый эфир без рекламы.</p>
+            <a id="donate-btn" href="#" target="_blank" class="btn">ПОДДЕРЖАТЬ СТРИМ 🤝</a>
+        </div>
+    </div>
+
+    <script>
+        // Ссылка на твой основной index.html, откуда этот плеер будет воровать трансляцию
+        const ADMIN_PAGE = "index.html"; 
+
+        // Подтягиваем настройки доната и стрима из твоего основного файла
+        fetch(ADMIN_PAGE)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                
+                // Ищем скрипт с настройками
+                const scripts = doc.getElementsByTagName('script');
+                for (let script of scripts) {
+                    if (script.innerText.includes('DEFAULT_STREAM')) {
+                        // Вытаскиваем ссылки через регулярные выражения
+                        const streamMatch = script.innerText.match(/DEFAULT_STREAM\s*=\s*"([^"]+)"/);
+                        const donateMatch = script.innerText.match(/DONATE_URL\s*=\s*"([^"]+)"/);
+                        
+                        if (streamMatch) document.getElementById('user-player').src = streamMatch[1];
+                        if (donateMatch) document.getElementById('donate-btn').href = donateMatch[1];
+                        break;
+                    }
+                }
+            }).catch(err => console.error("Ошибка обновления потока:", err));
+            
+        // Обновляем поток каждые 30 секунд на случай, если ты сменил матч в админке
+        setInterval(() => {
+            fetch(ADMIN_PAGE).then(r => r.text()).then(html => {
+                const doc = new DOMParser().parseFromString(html, 'text/html');
+                const scripts = doc.getElementsByTagName('script');
+                for (let script of scripts) {
+                    if (script.innerText.includes('DEFAULT_STREAM')) {
+                      const streamMatch = script.innerText.match(/DEFAULT_STREAM\s*=\s*"([^"]+)"/);
+                        if (streamMatch && document.getElementById('user-player').src !== streamMatch[1]) {
+                            document.getElementById('user-player').src = streamMatch[1];
+                        }
+                        break;
+                    }
+                }
+            });
+        }, 30000);
+    </script>
+</body>
+</html>
+                      
