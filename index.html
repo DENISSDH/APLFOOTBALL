@@ -3,131 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Матч-Центр / Приватный доступ</title>
+    <title>Приватный Матч-Центр</title>
+    
+    <script>
+        // ==========================================
+        // НАСТРОЙКИ САЙТА (МЕНЯЙ ТОЛЬКО ЗДЕСЬ):
+        // ==========================================
+        const SECRET_TOKEN = "football2026"; // Пароль для входа в конце ссылки
+        const DONATE_URL = "https://donationalerts.com"; // Твоя ссылка на донаты
+        const DEFAULT_STREAM = "https://vk.com"; // Ссылка на трансляцию ВК
+        // ==========================================
+    </script>
+
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #0d1117;
-            color: #f0f6fc;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-        }
-        #access-denied {
-            text-align: center;
-        }
-        #access-denied h1 { font-size: 72px; margin: 0; color: #21262d; }
-        #access-denied p { color: #8b949e; font-size: 18px; }
+        body { margin: 0; padding: 0; background-color: #0b0f19; color: #ffffff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        #denied { text-align: center; font-size: 24px; color: #ff4a4a; }
+        #app { display: none; width: 95%; max-width: 1300px; margin: 20px; }
+        .grid { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+        .player { position: relative; padding-top: 56.25%; background: #000; border-radius: 8px; overflow: hidden; border: 1px solid #1e293b; }
+        .player iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        .sidebar { background: #111827; padding: 20px; border-radius: 8px; border: 1px solid #1e293b; display: flex; flex-direction: column; gap: 20px; }
+        .btn { display: block; background: #22c55e; color: #fff; text-align: center; padding: 15px; border-radius: 6px; font-size: 18px; font-weight: bold; text-decoration: none; }
+        .btn:hover { background: #16a34a; }
+        .panel input { width: 100%; padding: 10px; background: #1f2937; border: 1px solid #374151; color: #fff; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px; }
+        .panel button { width: 100%; padding: 10px; background: #3b82f6; border: none; color: #fff; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        .panel button:hover { background: #2563eb; }
+        h2 { margin-top: 0; font-size: 18px; color: #3b82f6; border-bottom: 1px solid #1e293b; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
 
-        #stream-container {
-            display: none;
-            width: 95%;
-            max-width: 1400px;
-            margin: 20px auto;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #30363d;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-        .logo {
-            font-size: 20px;
-            font-weight: 600;
-            color: #58a6ff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .badge {
-            background-color: #238636;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            text-transform: uppercase;
-        }
-        .main-content {
-            display: grid;
-            grid-template-columns: 3.2fr 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 1000px) {
-            .main-content { grid-template-columns: 1fr; }
-        }
-        .player-wrapper {
-            background: #161b22;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #30363d;
-            position: relative;
-            padding-top: 56.25%; /* Формат 16:9 */
-        }
-        .player-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .panel {
-            background: #161b22;
-            border-radius: 8px;
-            padding: 20px;
-            border: 1px solid #30363d;
-        }
-        .panel h3 { margin-top: 0; color: #58a6ff; font-size: 16px; border-bottom: 1px solid #30363d; padding-bottom: 8px; }
-        
-        /* Кнопка Доната */
-        .donate-btn {
-            display: block;
-            background: linear-gradient(135deg, #1f883d, #2ea44f);
-            color: #ffffff;
-            border: none;
-            padding: 14px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            text-align: center;
-            transition: background 0.2s;
-            box-shadow: 0 3px 10px rgba(46, 164, 79, 0.2);
-        }
-        .donate-btn:hover { background: #2c974b; }
+    <!-- Заглушка 404 (показывается всем врагам) -->
+    <div id="denied">
+        <h1>404 Not Found</h1>
+        <p>Страница не существует или доступ ограничен.</p>
+    </div>
 
-        /* Панель управления потоками (только для тебя) */
-        .control-inputs {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 15px;
+    <!-- Основной интерфейс (показывается только тебе) -->
+    <div id="app">
+        <h1 style="font-size: 20px; margin-bottom: 20px; color: #3b82f6;">🔴 PRIVATE VIP STREAM STATION</h1>
+        <div class="grid">
+            <div class="player">
+                <iframe id="main-player" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+            </div>
+            <div class="sidebar">
+                <div class="panel">
+                    <h2>💰 ПОДДЕРЖКА</h2>
+                    <a id="donate-link" href="#" target="_blank" class="btn">ОТПРАВИТЬ ДОНАТ</a>
+                </div>
+                <div class="panel">
+                    <h2>🔄 СМЕНА ТРАНСЛЯЦИИ</h2>
+                    <input type="text" id="new-url" placeholder="Вставь src ссылку из ВК">
+                    <button onclick="changeStream()">ОБНОВИТЬ ПОТОР</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка секретного токена при входе
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('token') === SECRET_TOKEN) {
+            document.getElementById('denied').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('main-player').src = DEFAULT_STREAM;
+            document.getElementById('donate-link').href = DONATE_URL;
         }
-        .control-inputs input {
-            background: #0d1117;
-            border: 1px solid #30363d;
-            padding: 8px;
-            color: white;
-            border-radius: 4px;
+
+        // Функция быстрой смены ссылки кнопкой
+        function changeStream() {
+            const inputUrl = document.getElementById('new-url').value;
+            if (inputUrl) {
+                document.getElementById('main-player').src = inputUrl;
+            } else {
+                alert("Пожалуйста, вставь рабочую ссылку!");
+            }
         }
-        .control-inputs button {
-            background: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
-            padding: 8px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-        .control-inputs button:hover { background: #30363d; }
+    </script>
+</body>
+</html>
